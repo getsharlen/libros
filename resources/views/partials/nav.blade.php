@@ -1,7 +1,8 @@
-<header class="glass mb-6 flex flex-wrap items-center justify-between gap-4 border border-white/20 p-4 md:p-5">
+<header class="glass mb-6 flex flex-wrap items-center justify-between gap-4 p-4 md:p-5 reveal">
     <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-teal-200/90">Libros</p>
-        <h1 class="font-display text-xl font-bold text-white md:text-2xl">Perpustakaan Digital</h1>
+        <p class="text-xs uppercase tracking-[0.2em] text-orange-600">Libros</p>
+        <h1 class="font-display text-xl font-bold text-slate-900 md:text-2xl">Perpustakaan Digital</h1>
+        <p class="mt-1 text-xs text-slate-500">Platform pinjam buku yang cepat dan tertata</p>
     </div>
 
     <nav class="flex flex-wrap items-center gap-2 text-sm">
