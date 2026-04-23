@@ -20,6 +20,7 @@ class Peminjaman extends Model
         'tanggal_jatuh_tempo',
         'status',
         'catatan',
+        'alasan_penolakan',
     ];
 
     protected function casts(): array

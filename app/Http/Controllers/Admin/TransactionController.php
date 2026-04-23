@@ -73,6 +73,57 @@ class TransactionController extends Controller
         ], 201);
     }
 
+    public function approve(Request $request, Peminjaman $peminjaman): JsonResponse|RedirectResponse
+    {
+        if ($peminjaman->status !== 'menunggu') {
+            if (! $request->expectsJson()) {
+                return back()->withErrors(['loan' => 'Peminjaman tidak dapat disetujui.']);
+            }
+
+            return response()->json(['message' => 'Peminjaman tidak dapat disetujui.'], 422);
+        }
+
+        DB::transaction(function () use ($peminjaman): void {
+            $book = Book::whereKey($peminjaman->book_id)->lockForUpdate()->firstOrFail();
+
+            if ($book->stok_tersedia < 1) {
+                abort(422, 'Stok buku habis.');
+            }
+
+            $book->decrement('stok_tersedia');
+            $peminjaman->update(['status' => 'dipinjam']);
+        });
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('admin.transactions.index')->with('success', 'Peminjaman disetujui dan stok diperbarui.');
+        }
+
+        return response()->json(['message' => 'Peminjaman disetujui.']);
+    }
+
+    public function reject(Request $request, Peminjaman $peminjaman): JsonResponse|RedirectResponse
+    {
+        $data = $request->validate([
+            'alasan' => ['required', 'string', 'max:1000'],
+        ]);
+
+        if ($peminjaman->status !== 'menunggu') {
+            if (! $request->expectsJson()) {
+                return back()->withErrors(['loan' => 'Peminjaman tidak dapat ditolak.']);
+            }
+
+            return response()->json(['message' => 'Peminjaman tidak dapat ditolak.'], 422);
+        }
+
+        $peminjaman->update(['status' => 'ditolak', 'alasan_penolakan' => $data['alasan']]);
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('admin.transactions.index')->with('success', 'Peminjaman ditolak.');
+        }
+
+        return response()->json(['message' => 'Peminjaman ditolak.']);
+    }
+
     public function confirmReturn(StoreReturnRequest $request, Peminjaman $peminjaman): JsonResponse|RedirectResponse
     {
         if ($peminjaman->status !== 'dipinjam') {

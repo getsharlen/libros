@@ -26,7 +26,11 @@ class LoanController extends Controller
             ->withQueryString();
 
         if (! $request->expectsJson()) {
-            $books = Book::query()->where('stok_tersedia', '>', 0)->orderBy('judul')->get();
+            $books = Book::query()
+                ->when($request->filled('q'), fn($q2) => $q2->where('judul', 'like', '%'.$request->string('q').'%'))
+                ->where('stok_tersedia', '>', 0)
+                ->orderBy('judul')
+                ->get();
 
             return view('siswa.loans.index', compact('items', 'books'));
         }
@@ -52,20 +56,19 @@ class LoanController extends Controller
         }
 
         $loan = DB::transaction(function () use ($request): Peminjaman {
-            $book = Book::whereKey($request->integer('book_id'))->lockForUpdate()->firstOrFail();
+            $book = Book::whereKey($request->integer('book_id'))->firstOrFail();
 
             if ($book->stok_tersedia < 1) {
                 abort(422, 'Stok buku habis.');
             }
 
-            $book->decrement('stok_tersedia');
-
+            // Create request in pending state. Admin will approve/reject later.
             return Peminjaman::create([
                 'user_id' => $request->user()->id,
                 'book_id' => $book->id,
                 'tanggal_pinjam' => now()->toDateString(),
                 'tanggal_jatuh_tempo' => now()->addDays($request->integer('durasi_hari'))->toDateString(),
-                'status' => 'dipinjam',
+                'status' => 'menunggu',
                 'catatan' => $request->input('catatan'),
             ]);
         });

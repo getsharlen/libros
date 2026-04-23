@@ -308,6 +308,23 @@
             @yield('content')
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('success'))
+                Swal.fire({toast: true, position: 'top-end', icon: 'success', title: @json(session('success')), showConfirmButton: false, timer: 3000});
+            @endif
+
+            @if(session('error'))
+                Swal.fire({toast: true, position: 'top-end', icon: 'error', title: @json(session('error')), showConfirmButton: false, timer: 4000});
+            @endif
+
+            @if($errors->any())
+                Swal.fire({title: 'Terjadi kesalahan', html: @json(implode('<br>', $errors->all())), icon: 'error'});
+            @endif
+        });
+    </script>
 </body>
 
 </html>

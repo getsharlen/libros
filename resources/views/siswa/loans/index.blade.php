@@ -4,6 +4,13 @@
     <section class="space-y-4">
         <h2 class="font-display text-3xl font-bold text-slate-900">Peminjaman Saya</h2>
 
+        <form method="GET" class="panel p-4">
+            <label class="field">
+                <span>Cari Judul</span>
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Masukkan judul buku">
+            </label>
+        </form>
+
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             @forelse ($books->take(4) as $book)
                 <article class="panel p-4 reveal">

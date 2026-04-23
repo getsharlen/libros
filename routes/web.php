@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function (): void {
 
         Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
         Route::post('/transactions/loan', [TransactionController::class, 'storeLoan'])->name('transactions.loan');
+        Route::post('/transactions/{peminjaman}/approve', [TransactionController::class, 'approve'])->name('transactions.approve');
+        Route::post('/transactions/{peminjaman}/reject', [TransactionController::class, 'reject'])->name('transactions.reject');
         Route::post('/transactions/{peminjaman}/return', [TransactionController::class, 'confirmReturn'])->name('transactions.return');
     });
 

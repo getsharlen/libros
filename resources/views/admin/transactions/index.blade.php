@@ -42,9 +42,11 @@
                         <span>Status</span>
                         <select name="status">
                             <option value="">Semua</option>
+                            <option value="menunggu" @selected(request('status') === 'menunggu')>Menunggu Persetujuan</option>
                             <option value="dipinjam" @selected(request('status') === 'dipinjam')>Dipinjam</option>
                             <option value="dikembalikan" @selected(request('status') === 'dikembalikan')>Dikembalikan</option>
                             <option value="terlambat" @selected(request('status') === 'terlambat')>Terlambat</option>
+                            <option value="ditolak" @selected(request('status') === 'ditolak')>Ditolak</option>
                         </select>
                     </label>
                     <button class="chip" type="submit">Terapkan</button>
@@ -73,13 +75,36 @@
                             <td>{{ $loan->tanggal_jatuh_tempo }}</td>
                             <td>{{ strtoupper($loan->status) }}</td>
                             <td>
-                                @if ($loan->status === 'dipinjam')
+                                @if ($loan->status === 'menunggu')
+                                    <div class="grid gap-2">
+                                        <form method="POST" action="{{ route('admin.transactions.approve', $loan) }}">
+                                            @csrf
+                                            <button type="submit" class="btn-primary">Setujui</button>
+                                        </form>
+
+                                        <form method="POST" action="{{ route('admin.transactions.reject', $loan) }}">
+                                            @csrf
+                                            <label class="field">
+                                                <span>Alasan Tolak</span>
+                                                <input type="text" name="alasan" placeholder="Opsional singkat" class="field-input">
+                                            </label>
+                                            <button type="submit" class="btn-danger">Tolak</button>
+                                        </form>
+                                    </div>
+                                @elseif ($loan->status === 'dipinjam')
                                     <form method="POST" action="{{ route('admin.transactions.return', $loan) }}" class="grid gap-2">
                                         @csrf
                                         <input class="input-min" type="date" name="tanggal_kembali">
                                         <input class="input-min" type="number" name="denda" min="0" step="1000" placeholder="Denda opsional">
                                         <button type="submit" class="btn-primary">Konfirmasi Kembali</button>
                                     </form>
+                                @elseif ($loan->status === 'ditolak')
+                                    <div>
+                                        <p class="text-sm text-rose-600">Ditolak</p>
+                                        @if ($loan->alasan_penolakan)
+                                            <p class="text-xs text-slate-500">Alasan: {{ $loan->alasan_penolakan }}</p>
+                                        @endif
+                                    </div>
                                 @else
                                     <span class="text-slate-300">Selesai</span>
                                 @endif
